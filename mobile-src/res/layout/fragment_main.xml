@@ -1,0 +1,66 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="ph.com.treeyo.treena.MainActivity$PlaceholderFragment" >
+	<LinearLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal" 
+    android:background="@color/green">
+	    <TextView
+	        android:layout_width="wrap_content"
+	        android:layout_height="match_parent"
+	        android:text="@string/your_rank"
+	        android:textStyle="bold"
+	        android:paddingTop="@dimen/activity_vertical_margin"
+	        android:paddingLeft="@dimen/activity_horizontal_margin"
+	        android:textColor="@color/white"/>
+
+	    <EditText
+	        android:id="@+id/rankEditText"
+	        android:layout_width="fill_parent"
+	        android:layout_height="match_parent"
+	        android:inputType="text" 
+	        android:paddingRight="@dimen/activity_horizontal_margin"
+	        android:enabled="false"
+	        android:textColor="@color/white"/>
+
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+        android:paddingBottom="@dimen/small_vertical"
+        android:paddingRight="@dimen/small_horizontal"
+        android:paddingLeft="@dimen/small_horizontal"
+        android:minHeight="@dimen/progress_bar_height"
+    	android:progressDrawable="@drawable/progressbar2"
+    	android:background="@color/green"/>
+    
+	  <fragment
+	    android:id="@+id/map"
+	    android:layout_width="match_parent"
+	    android:layout_height="fill_parent"
+	    class="com.google.android.gms.maps.SupportMapFragment"
+    android:layout_weight="1"/>
+	<RelativeLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@color/coal"
+    android:gravity="center">
+
+	<Button
+	    android:id="@+id/plantButton"
+	    android:layout_width="@dimen/plant_btn_height"
+	    android:layout_height="@dimen/plant_btn_height"
+	    android:background="@drawable/plant_button"
+	    android:layout_marginTop="@dimen/medium_padding"
+	    android:layout_marginBottom="@dimen/medium_padding"
+	    android:textColor="@color/white" 
+	    android:onClick="plantedClicked"/>
+
+	</RelativeLayout>
+</LinearLayout>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">TREENA</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="your_rank">Your Rank:</string>
+    <string name="plant">Plant!</string>
+    <string name="menuitem_refresh">refresh</string>
+
+</resources>
