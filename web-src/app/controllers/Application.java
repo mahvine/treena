@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.http.DetailsResponse;
@@ -37,12 +38,58 @@ public class Application extends Controller {
 	    		response.lat = device.latitude;
 	    		response.lon = device.longitude;
 	    		response.treesOfLife = device.discoveredTrees.size();
-	    		response.treesPlanted = device.plantedTrees.size();
-	    		//TODO getTitle
+	        	List<PlantedTrees> plantedTrees = PlantedTrees.find.where().eq("devices.id",device.id).findList();
+	    		response.treesPlanted = plantedTrees.size();
+	    		response.title = title(plantedTrees.size());
+	    		response.progress = progress(device.discoveredTrees.size(), plantedTrees.size());
 	    		return ok(Json.toJson(response));
     		}
     	}
     	return badRequest("invalid parameters");
+    }
+    
+    private String title(int plantedTrees){
+    	if(plantedTrees ==0){
+    		return "Wanderer";
+    	}else if(plantedTrees >=3 && plantedTrees <6){
+    		return "Tree Observer";
+    	}else if(plantedTrees >=7 && plantedTrees <9){
+    		return "Tree Surveyor";
+    	}else if(plantedTrees ==10){
+    		return "Treant Protector";
+    	}else if(plantedTrees >=11 && plantedTrees <15){
+    		return "Tree Hugger";
+    	}else {
+    		return "Guardian";
+    	}
+    }
+    
+    private int progress(int treesOfLife,int plantedTrees){
+    	int score = 0;
+    	if(treesOfLife >=1 && treesOfLife <=3){
+    		score+=12;
+    	}else if(treesOfLife >=4 && treesOfLife <=6){
+    		score+=18;
+    	}else if(treesOfLife >=7 && treesOfLife <=8){
+    		score+=24;
+    	}else if(treesOfLife ==9 ){
+    		score+=35;
+    	}else if(treesOfLife ==10){
+    		score+=42;
+    	}
+    	
+    	if(treesOfLife >=1 && treesOfLife <=3){
+    		score+=12;
+    	}else if(treesOfLife >=4 && treesOfLife <=6){
+    		score+=18;
+    	}else if(treesOfLife >=7 && treesOfLife <=8){
+    		score+=24;
+    	}else if(treesOfLife ==9 ){
+    		score+=35;
+    	}else if(treesOfLife ==10){
+    		score+=68;
+    	}
+    	return score;
     }
     
     
@@ -103,7 +150,9 @@ public class Application extends Controller {
 	    		}
 	    		
 	    		List<Tree> trees =  new ArrayList<Tree>();
-	    		for(PlantedTrees plantedTree :device.plantedTrees){
+				List<Tree> coveredTrees = coveredTrees(); 
+	        	List<PlantedTrees> plantedTrees = PlantedTrees.find.where().eq("devices.id",device.id).findList();
+	    		for(PlantedTrees plantedTree :plantedTrees){
 	    			Tree tree = new Tree();
 	    			tree.lat = plantedTree.latitude;
 	    			tree.lon = plantedTree.longitude;
@@ -117,10 +166,42 @@ public class Application extends Controller {
 	    			tree.type = 1;
 	    			trees.add(tree);
 	    		}
-	    		return ok(Json.toJson(trees));
+	    		
+	    		double allowance = 0.00044;
+	    		List<Tree> newList = new ArrayList<Tree>();
+	    		for(Tree coveredTree:coveredTrees){
+	    			for(Tree someTree : trees){
+	    		    		double distance = getDistance(someTree.lon, someTree.lat, coveredTree.lon, coveredTree.lat);
+	    		    		if(distance < allowance){
+	    		    			newList.add(coveredTree);
+	    		    		}
+	    			}
+	    		}
+	    		coveredTrees.removeAll(newList);
+	    		coveredTrees.addAll(trees);
+	    		
+	    		Logger.info("New list size:"+coveredTrees.size());
+	    		return ok(Json.toJson(coveredTrees));
     		}
     	}
     	return badRequest("invalid parameters");
+    }
+    
+    public List<Tree> coveredTrees(){
+    	double allowance = 0.00038;
+    	List<Tree> trees = new ArrayList<Tree>();
+    	for(double lat = 14.561536;lat<=14.565596;lat+=allowance ){
+    		for(double lon = 120.991047;lon<=120.999277;lon+=allowance ){
+    	    	Tree tree = new Tree();
+    	    	tree.lat = lat;
+    	    	tree.lon = lon;
+    	    	tree.type = 2;
+    	    	trees.add(tree);
+    		}
+    	}
+
+		Logger.info("covered tree size:"+trees.size());
+    	return trees;
     }
     
     
@@ -155,6 +236,7 @@ public class Application extends Controller {
     	}
     	device.latitude = latitude;
     	device.longitude = longitude;
+		device.save();
     	Map<String,Object> responseMap = new HashMap<String,Object>();
     	responseMap.put("message", "Changed location!");
     	return ok(Json.toJson(responseMap));
@@ -176,8 +258,9 @@ public class Application extends Controller {
     
     
     public static boolean isValidPoint(Devices device){
-    	double allowance = 0.000485;
-    	for(PlantedTrees tree :device.plantedTrees){
+    	double allowance = 0.000385;
+    	List<PlantedTrees> plantedTrees = PlantedTrees.find.where().eq("devices.id",device.id).findList();
+    	for(PlantedTrees tree :plantedTrees){
     		double distance = getDistance(device.longitude, device.latitude, tree.longitude, tree.latitude);
     		if(distance <= allowance){
     			return false;

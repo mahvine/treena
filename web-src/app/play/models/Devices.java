@@ -27,7 +27,7 @@ public class Devices extends Model{
     inverseJoinColumns={@JoinColumn(name="golden_tree_id", referencedColumnName="id")})
 	public List<GoldenTrees> discoveredTrees;
 
-	@OneToMany(mappedBy="devices")
+	@OneToMany(mappedBy="devices",cascade=CascadeType.ALL)
 	public List<PlantedTrees> plantedTrees;
 
 	

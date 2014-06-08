@@ -80,6 +80,9 @@
 		var lat;
 		var lon;
 		var markers = [];
+		var image = {
+		    url: '@routes.Assets.at("img/goldentree.png")'
+		  };
 		$(document).ready(function(){
 	        var mapOptions = {
 	                center: new google.maps.LatLng(14.563651, 120.994990),
@@ -101,6 +104,7 @@
 				markers.push( new google.maps.Marker({
 					      position: new google.maps.LatLng(@goldenTree.latitude,@goldenTree.longitude),
 					      map: map,
+				          icon: image,
 					      title: '@goldenTree.areaname'
 					  }));
 			}

@@ -6,4 +6,5 @@ public class DetailsResponse {
 	public String title;
 	public int treesPlanted;
 	public int treesOfLife;
+	public int progress;
 }

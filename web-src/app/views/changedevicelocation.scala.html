@@ -79,6 +79,16 @@
 		var lon;
 		var marker;
 		var latLng = new google.maps.LatLng(@latitude, @longitude);
+		var markers = [];
+		var image1 = {
+		    url: '@routes.Assets.at("img/goldentree.png")'
+		  };
+		  var image2 = {
+		    url: '@routes.Assets.at("img/greentree.png")'
+		  };
+		  var image3 = {
+		    url: '@routes.Assets.at("img/dark3.png")'
+		  };
 		$(document).ready(function(){
 	        var mapOptions = {
 	                center: latLng,
@@ -96,11 +106,12 @@
 	                }
 	        };
             map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+            renderTrees();
            marker= new google.maps.Marker({
 					      position: latLng,
 					      map: map,
 					      title: '@deviceIdentifier'
-					  })
+					  });
 			google.maps.event.addListener(map, "click", function (e) { 
                console.log("Double Click"); 
                console.log(e);
@@ -114,6 +125,7 @@
 					var newPosition = new google.maps.LatLng(lat,lon);
 					marker.setPosition(newPosition);
 					map.panTo(newPosition);
+					renderTrees();
 				});
             });
             
@@ -122,8 +134,7 @@
             		var latitude = parseFloat($(this).attr('lat'));
             		map.panTo(new google.maps.LatLng(latitude, longitude));
             	});
-            
-            
+                        
 		});
 		
 		function centerDefault(){
@@ -131,15 +142,54 @@
 		}
 		
 		
-		function plot(){
-			var areaname = $("#input-area-name").val();
-			$.post("/createGoldenTree",
-				{	lon:lon,
-					lat:lat, 
-					areaname:areaname
-				},function(response){
-					window.location.reload();
-				});
+		function renderTrees(){
+			var option0={   map: map,
+					      	icon:image2,
+							origin: new google.maps.Point(0,0),
+    						anchor: new google.maps.Point(0, 32)
+					  }
+					  
+			var option1={   map: map,
+					      	icon:image1,
+							origin: new google.maps.Point(0,0),
+    						anchor: new google.maps.Point(0, 32)
+					  }
+		    
+		    var shape = {
+			      coords: [],
+			      type: 'poly'
+			};
+			var option2={   map: map,
+					      	icon:image3,
+							origin: new google.maps.Point(0,0),
+    						anchor: new google.maps.Point(0, 0),
+    						shape:shape
+					  }
+					  
+		
+			$.get("/trees?did=@deviceIdentifier",function(response){
+					var trees = response;
+					for(var x = 0 ; x<markers.length;x++){
+						var marker = markers[x];
+						marker.setMap(null);
+					}
+					markers=[];
+					for(var x = 0 ; x<trees.length;x++){
+						var option = {};
+						var tree = trees[x];
+						if(tree.type == 0){
+							option = option0;
+						}else if(tree.type == 1){
+							option = option1;
+						}else {
+							option = option2;
+						}
+						var mark = new google.maps.Marker(option);
+						mark.setPosition( new google.maps.LatLng(tree.lat,tree.lon));
+						markers.push(mark);	
+					}
+					
+				},"json");
 		}
 		
 		</script>
